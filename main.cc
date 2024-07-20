@@ -4,6 +4,8 @@
 #include "canvas.h"
 #include <Eigen/Dense>
 
+using namespace std;
+
 struct Projectile {
 	Tuple position;
 	Tuple velocity;
@@ -21,9 +23,29 @@ tick(Projectile& proj, const Environment& env)
 	proj.velocity = proj.velocity + env.gravity + env.wind;
 }
 
+
+void
+testing_something()
+{
+	Eigen::Matrix4d identityMatrix = Eigen::Matrix4d::Identity();
+	Eigen::Matrix4d matrixA;
+
+	matrixA << 	-2, -8, 3, 5,
+				-3, 1, 7, 3,
+				1, 2, -9, 6,
+				-6, 7, 7, -9;
+
+	Eigen::Matrix4d inverted_matrixA = matrixA.inverse();
+
+	cout << matrixA * inverted_matrixA << endl;
+	cout << matrixA * inverted_matrixA << endl;
+}
+
 int
 main()
 {
+	testing_something();
+
 	Projectile proj = {
 		Tuple::point(0, 1, 0),
 		Tuple::vector(1, 1.8, 0).normalize() * 9
@@ -40,33 +62,33 @@ main()
 
 	int ticks = 0;
 	while (proj.position.y > 0) {
-		// std::cout << "Tick " << ticks << ": ";
+		// cout << "Tick " << ticks << ": ";
 		// proj.position.print();
-		// std::cout << std::endl;
+		// cout << endl;
 
 		tick(proj, env);
 
 		// Flip the y-coordinate when writing to the canvas
-        int canvas_y = canvas.height - 1 - static_cast<int>(std::round(proj.position.y));
-        int canvas_x = static_cast<int>(std::round(proj.position.x));
+        int canvas_y = canvas.height - 1 - static_cast<int>(round(proj.position.y));
+        int canvas_x = static_cast<int>(round(proj.position.x));
 
 		canvas.write_pixel(canvas_x, canvas_y, color);
 
 		ticks++;
 
 		if (ticks > 1000) {  // Safety check to prevent infinite loop
-			std::cout << "Simulation stopped after 1000 ticks." << std::endl;
+			cout << "Simulation stopped after 1000 ticks." << endl;
 			break;
 		}  
 	}
 
-	std::cout << "The projectile hit the ground after " << ticks << " ticks." << std::endl;
-	std::cout << "Final position: ";
+	cout << "The projectile hit the ground after " << ticks << " ticks." << endl;
+	cout << "Final position: ";
 	proj.position.print();
 
-	canvas.save_to_PPM("final.ppm");
+	// canvas.save_to_PPM("final.ppm");
 
-	std::cout << std::endl;
+	cout << endl;
 
 	return 0;
 }
