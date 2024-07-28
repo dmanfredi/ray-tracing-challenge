@@ -3,9 +3,12 @@
 #include <condition_variable>
 #include <Eigen/Dense>
 #include <Eigen/LU>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "tuple.h"
 #include "canvas.h"
+#include "utils.h"
 
 using namespace std;
 using namespace Eigen;
@@ -171,7 +174,7 @@ TEST(CanvasTest, CanvasWritePixel) {
 	int x = 30;
 	int y = 80;
 
-	c.write_pixel(x, y, col);
+	c.write_pixel(x, y, col, 1);
 
 	EXPECT_EQ(c.pixels[y * c.width + x], col);
 }
@@ -330,10 +333,33 @@ TEST(MatrixTest, VectorTransform) {
 	EXPECT_FLOAT_EQ(transformedFella(1), 2.6);
 }
 
-TEST(MatrixTest, TupleScale) {
+TEST(MatrixTest, VectorScale) {
+	Vector4f e_t1;
+	e_t1 << -4, 6, 8, 0;
+	e_t1 = create_scaling_matrix(-2, 3, 4) * e_t1;
+	float result = e_t1(1);
+	EXPECT_FLOAT_EQ(result, 18);
 }
 
+TEST(MatrixTest, PointRotate) {
+	Vector4f e_t1;
+	e_t1 << 0, 0, 1, 1;
+	Matrix4f half_quarter = create_Y_rotation_matrix(M_PI / 4);
+	Matrix4f full_quarter = create_Y_rotation_matrix(M_PI / 2);
+	e_t1 = half_quarter * full_quarter * e_t1;
+	float result = e_t1(1);
+	EXPECT_FLOAT_EQ(result, 0);
+}
 
+TEST(MatrixTest, PointShear) {
+	Vector4f e_t1;
+	e_t1 << 2, 3, 4, 1;
+	Matrix4f shearer = create_shearing_matrix(0, 0, 0, 1, 0, 0);
+	e_t1 = shearer * e_t1;
+
+	float result = e_t1(1);
+	EXPECT_FLOAT_EQ(result, 7);
+}
 
 /* MATRICES */
 /* MATRICES */

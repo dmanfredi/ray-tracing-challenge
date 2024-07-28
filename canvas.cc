@@ -8,15 +8,21 @@
 // Canvas constructor definition
 Canvas::Canvas(int w, int h) : width(w), height(h), pixels(w * h) {
     for (auto& pixel : pixels) {
-        pixel = Tuple::color(0.075, 0.075, 0.075);
+        pixel = Tuple::color(0.019, 0.029, 0.140);
     }
 }
 
-void Canvas::write_pixel(int x, int y, const Tuple& color) 
+void Canvas::write_pixel(int x, int y, const Tuple& color, int size = 1) 
 {
-	if (x >= 0 && x < width && y >= 0 && y < height) {
-		pixels[y * width + x] = color;
-	}
+    for (int dy = 0; dy < size; dy++) {
+        for (int dx = 0; dx < size; dx++) {
+            int px = x + dx;
+            int py = y + dy;
+            if (px >= 0 && px < width && py >= 0 && py < height) {
+                pixels[py * width + px] = color;
+            }
+        }
+    }
 }
 
 void Canvas::save_to_PPM(const std::string& filename) {

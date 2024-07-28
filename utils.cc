@@ -44,4 +44,15 @@ Matrix4f create_Z_rotation_matrix(float r)
 	return y_rotation;
 }
 
+Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx, float zy)
+{
+	Matrix4f matrix;
+	matrix  << 	1, xy, xz, 0,
+				yx, 1, yz, 0,
+				zx, zy, 1, 0,
+				0,  0,  0, 1;
+
+	return matrix;
+}
+
 #endif // MATRIX_OPERATIONS_H

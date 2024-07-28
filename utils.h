@@ -20,4 +20,7 @@ Matrix4f create_Y_rotation_matrix(float r);
 // Function to create a rotation matrix around the Z-axis
 Matrix4f create_Z_rotation_matrix(float r);
 
+// Function to create a shearing matrix that can shear by any axis realtive to any other axis
+Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx, float zy);
+
 #endif // MATRIX_OPERATIONS_H

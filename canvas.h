@@ -18,7 +18,7 @@ public:
     int width, height;
     std::vector<Tuple> pixels;
 
-    void write_pixel(int x, int y, const Tuple& color);
+    void write_pixel(int x, int y, const Tuple& color, int size);
     void save_to_PPM(const std::string& filename);
 
 };
