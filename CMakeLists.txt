@@ -22,15 +22,21 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+# Well there goes any portability.
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Program Files (x86)/Eigen3")
+set(EIGEN3_INCLUDE_DIR "C:/Program Files (x86)/Eigen3/include/eigen3")
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+include_directories(${EIGEN3_INCLUDE_DIR})
  
 # add_executable (example example.cpp)
 # target_link_libraries (example Eigen3::Eigen)
 
 # Create a library from tuple.cc
 add_library(tuple_lib tuple.cc)
-# Create a library from tuple.cc
+# Create a library from canvas.cc
 add_library(canvas_lib canvas.cc)
+# Create a library from utils.cc
+add_library(utils_lib utils.cc)
 
 # Create the main executable
 add_executable(main_app main.cc)
@@ -39,6 +45,7 @@ add_executable(main_app main.cc)
 target_link_libraries(main_app 
     tuple_lib
     canvas_lib
+    utils_lib
     Eigen3::Eigen
 )
 
@@ -50,6 +57,7 @@ target_link_libraries(main_test
     gtest_main 
     tuple_lib
     canvas_lib
+    utils_lib
     Eigen3::Eigen
 )
 

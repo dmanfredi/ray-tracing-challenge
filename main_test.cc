@@ -7,6 +7,9 @@
 #include "tuple.h"
 #include "canvas.h"
 
+using namespace std;
+using namespace Eigen;
+
 TEST(TupleTest, PointCreation) {
 	Tuple p1 = Tuple::point(1.5f, 5.6f, 2.7f);
 
@@ -300,12 +303,36 @@ TEST(MatrixTest, MatrixInverse) {
 
 	Eigen::Matrix4f matrixC = matrixA * matrixB;
 	Eigen::Matrix4f inverted_matrixB = matrixB.inverse();
-	
+
 	Eigen::Matrix4f matrixD = matrixC * inverted_matrixB;
 
 	bool is_approx = matrixD.isApprox(matrixA, 1e-6f);
 	EXPECT_TRUE(is_approx);
 }
+
+TEST(MatrixTest, PointTransform) {
+	Affine3f transform(Translation3f(1,2,3));
+	Matrix4f translation_matrix = transform.matrix();
+	Vector4f e_t1;
+	e_t1 << 1, 2.6, 0.6, 1;
+	Vector4f transformedFella = translation_matrix * e_t1;
+
+	EXPECT_FLOAT_EQ(transformedFella(1), 4.6);
+}
+
+TEST(MatrixTest, VectorTransform) {
+	Affine3f transform(Translation3f(1,2,3));
+	Matrix4f translation_matrix = transform.matrix();
+	Vector4f e_t1;
+	e_t1 << 1, 2.6, 0.6, 0;
+	Vector4f transformedFella = translation_matrix * e_t1;
+
+	EXPECT_FLOAT_EQ(transformedFella(1), 2.6);
+}
+
+TEST(MatrixTest, TupleScale) {
+}
+
 
 
 /* MATRICES */
