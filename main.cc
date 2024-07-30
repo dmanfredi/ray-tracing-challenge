@@ -10,8 +10,6 @@
 using namespace std;
 using namespace Eigen;
 
-
-
 int
 main()
 {
@@ -21,6 +19,11 @@ main()
 
 	// canvas.write_pixel(canvas_x, canvas_y, color, 10);
 
+	Vector4f test = Vector4f(5.0, 6.0, 7.0, 9.0);
+
+	test *= 2;
+
+	cout << test[1] << endl;
 
 	for (int i = 0; i < 12; i++) {
 		Vector4f pointy;
@@ -34,7 +37,7 @@ main()
 		int canvas_y = canvas.height - 1 -  static_cast<int>(pointy[1]);
 		int canvas_x = static_cast<int>(pointy[0]);
 
-		canvas_x += 250;   
+		canvas_x += 250;
 		canvas_y -= 250;
 	
 		float result = pointy[1];

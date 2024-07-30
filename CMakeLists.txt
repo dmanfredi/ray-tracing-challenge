@@ -37,6 +37,8 @@ add_library(tuple_lib tuple.cc)
 add_library(canvas_lib canvas.cc)
 # Create a library from utils.cc
 add_library(utils_lib utils.cc)
+# Create a library from sphere.cc
+add_library(sphere_lib sphere.cc)
 
 # Create the main executable
 add_executable(main_app main.cc)
@@ -46,6 +48,7 @@ target_link_libraries(main_app
     tuple_lib
     canvas_lib
     utils_lib
+    sphere_lib
     Eigen3::Eigen
 )
 
@@ -58,6 +61,7 @@ target_link_libraries(main_test
     tuple_lib
     canvas_lib
     utils_lib
+    sphere_lib
     Eigen3::Eigen
 )
 

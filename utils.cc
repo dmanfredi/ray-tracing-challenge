@@ -3,12 +3,30 @@
 
 #include <iostream>
 #include <algorithm>
-#include "tuple.h"
 #include <Eigen/Dense>
 #include <cmath>
 
+#include "tuple.h"
+#include "sphere.h"
+
 using namespace std;
 using namespace Eigen;
+
+struct Point3D {
+	Vector4f data;
+	Point3D(float x, float y, float z) : data(x, y, z, 1.0f) {}
+	float x() const { return data[0]; }
+	float y() const { return data[1]; }
+	float z() const { return data[2]; }
+};
+
+struct Vector3D {
+	Vector4f data;
+	Vector3D(float x, float y, float z) : data(x, y, z, 0.0f) {}
+	float x() const { return data[0]; }
+	float y() const { return data[1]; }
+	float z() const { return data[2]; }
+};
 
 Matrix4f create_scaling_matrix(float x, float y, float z)
 {
@@ -53,6 +71,46 @@ Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx
 				0,  0,  0, 1;
 
 	return matrix;
+}
+
+struct Ray {
+	Point3D origin;
+	Vector3D direction;
+	
+	Ray(const Point3D& o, const Vector3D& d) : origin(o), direction(d) {}
+};
+
+Point3D position(Ray ray, float time) {
+	Vector4f result = ray.origin.data + (ray.direction.data * time);
+	return Point3D(result[0], result[1], result[2]);
+}
+
+vector<int> intersection(Ray ray, Sphere sphere) {
+	Vector4f sphere_to_ray = ray.origin.data - Vector4f(0, 0, 0, 0);
+	int a = sphere_to_ray.dot(ray.direction.data);
+	int b = 2 * (ray.direction.data.dot(sphere_to_ray));
+	int c = sphere_to_ray.dot(sphere_to_ray) - 1;
+
+	int discriminant = pow(b, 2) - 4 * a * c; 
+
+	if (discriminant < 0) {
+		return {};
+	}
+
+	vector<int> intersections = {};
+
+	int t1 = (-b - sqrt(discriminant) / (2 * a));
+	int t2 = (-b + sqrt(discriminant) / (2 * a));
+	
+	// Intersections occur in increasing order
+	if (t1 > t2) {
+		intersections = {t2, t1};
+	} else {
+		intersections = {t1, t2};
+	}
+
+
+
 }
 
 #endif // MATRIX_OPERATIONS_H

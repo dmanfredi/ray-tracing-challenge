@@ -9,11 +9,12 @@
 #include "tuple.h"
 #include "canvas.h"
 #include "utils.h"
+#include "sphere.h"
 
 using namespace std;
 using namespace Eigen;
 
-TEST(TupleTest, PointCreation) {
+TEST(TupleTests, PointCreation) {
 	Tuple p1 = Tuple::point(1.5f, 5.6f, 2.7f);
 
 	EXPECT_FLOAT_EQ(p1.x, 1.5f);
@@ -22,7 +23,7 @@ TEST(TupleTest, PointCreation) {
 	EXPECT_FLOAT_EQ(p1.w, 1.0f);
 }
 
-TEST(TupleTest, VectorCreation) {
+TEST(TupleTests, VectorCreation) {
 	Tuple p1 = Tuple::vector(1.5f, 5.6f, 2.7f);
 
 	EXPECT_FLOAT_EQ(p1.x, 1.5f);
@@ -31,7 +32,7 @@ TEST(TupleTest, VectorCreation) {
 	EXPECT_FLOAT_EQ(p1.w, 0);
 }
 
-TEST(TupleTest, Addition) {
+TEST(TupleTests, Addition) {
 	Tuple t1 = Tuple::point(1.0f, 2.0f, 3.0f);
 	Tuple t2 = Tuple::vector(4.0f, 5.0f, 6.0f);
 	Tuple result = t1 + t2;
@@ -42,7 +43,7 @@ TEST(TupleTest, Addition) {
 	EXPECT_FLOAT_EQ(result.w, 1.0f);
 }
 
-TEST(TupleTest, Subtraction) {
+TEST(TupleTests, Subtraction) {
 	Tuple t1 = Tuple::point(3.0f, 2.0f, 1.0f);
 	Tuple t2 = Tuple::vector(1.0f, 2.0f, 3.0f);
 	Tuple result = t1 - t2;
@@ -53,7 +54,7 @@ TEST(TupleTest, Subtraction) {
 	EXPECT_FLOAT_EQ(result.w, 1.0f);
 }
 
-TEST(TupleTest, Multiplication) {
+TEST(TupleTests, Multiplication) {
 	Tuple t1 = Tuple::vector(1.0f, -2.0f, 3.0f);
 	Tuple result = t1 * 2.0f;
 
@@ -63,7 +64,7 @@ TEST(TupleTest, Multiplication) {
 	EXPECT_FLOAT_EQ(result.w, 0.0f);
 }
 
-TEST(TupleTest, Division) {
+TEST(TupleTests, Division) {
 	Tuple t1 = Tuple::vector(4.0f, -2.0f, 2.0f);
 	Tuple result = t1 / 2.0f;
 
@@ -73,7 +74,7 @@ TEST(TupleTest, Division) {
 	EXPECT_FLOAT_EQ(result.w, 0.0f);
 }
 
-TEST(TupleTest, Negation) {
+TEST(TupleTests, Negation) {
 	Tuple p1 = Tuple::point(1.5f, 5.6f, 2.7f);
 	Tuple p2 = -p1;
 
@@ -83,13 +84,13 @@ TEST(TupleTest, Negation) {
 	EXPECT_FLOAT_EQ(p2.w, -1.0f);
 }
 
-TEST(TupleTest, Magnitude) {
+TEST(TupleTests, Magnitude) {
 	Tuple t1 = Tuple::vector(1.0f, 2.0f, 3.0f);
 	double result = t1.magnitude();
 	EXPECT_DOUBLE_EQ(result, std::sqrt(14.0));
 }
 
-TEST(TupleTest, Normalization) {
+TEST(TupleTests, Normalization) {
 	Tuple t1 = Tuple::vector(1.0f, 2.0f, 3.0f);
 	Tuple result = t1.normalize();
 	
@@ -101,7 +102,7 @@ TEST(TupleTest, Normalization) {
 	EXPECT_FLOAT_EQ(result.w, 0.0f);
 }
 
-TEST(TupleTest, CrossProduct) {
+TEST(TupleTests, CrossProduct) {
 	Tuple a = Tuple::vector(1.0f, 2.0f, 3.0f);
 	Tuple b = Tuple::vector(2.0f, 3.0f, 4.0f);
 
@@ -117,7 +118,7 @@ TEST(TupleTest, CrossProduct) {
 /* COLORS */
 /* COLORS */
 /* COLORS */
-TEST(TupleTest, ColorCreation) {
+TEST(TupleTests, ColorCreation) {
 	Tuple c1 = Tuple::color(1.5f, 5.6f, 2.7f);
 
 	EXPECT_FLOAT_EQ(c1.red(), 1.5f);
@@ -128,7 +129,7 @@ TEST(TupleTest, ColorCreation) {
 // If the vector and point operation tests work, then theyll work for colors.
 
 
-TEST(TupleTest, ToRGB) {
+TEST(TupleTests, ToRGB) {
 	// Test with exact 0-1 range values
 	Tuple color1 = Tuple::color(0.0f, 0.5f, 1.0f);
 	Tuple::RGB rgb1 = color1.to_RGB();
@@ -158,7 +159,7 @@ TEST(TupleTest, ToRGB) {
 /* CCCANVAS */
 /* CCCANVAS */
 /* CCCANVAS */
-TEST(CanvasTest, CanvasCreation) {
+TEST(CanvasTests, CanvasCreation) {
 	Canvas c = Canvas(100, 200);
 	// Tuple col = Tuple::color(1, 0.2, 0.2);
 	// c.write_pixel(50, 50, col);
@@ -167,7 +168,7 @@ TEST(CanvasTest, CanvasCreation) {
 	EXPECT_EQ(c.height, 200); 
 }
 
-TEST(CanvasTest, CanvasWritePixel) {
+TEST(CanvasTests, CanvasWritePixel) {
 	Canvas c = Canvas(100, 200);
 	Tuple col = Tuple::color(1, 0.2, 0.2);
 
@@ -187,7 +188,7 @@ TEST(CanvasTest, CanvasWritePixel) {
 /* MATRICES */
 /* MATRICES */
 /* MATRICES */
-TEST(MatrixTest, MatrixCreation) {
+TEST(MatrixTests, MatrixCreation) {
 	Eigen::Matrix4f matrix;
 	Eigen::Matrix3f matrix3;
 	Eigen::Matrix2f matrix2;
@@ -201,7 +202,7 @@ TEST(MatrixTest, MatrixCreation) {
 	EXPECT_FLOAT_EQ(matrix(1, 2), 10.1);
 }
 
-TEST(MatrixTest, MatrixEquality) {
+TEST(MatrixTests, MatrixEquality) {
 	Eigen::Matrix2f A;
 	A << 1, 2,
 		3, 4;
@@ -224,7 +225,7 @@ TEST(MatrixTest, MatrixEquality) {
 }
 
 
-TEST(MatrixTest, MatrixMultiplication) {
+TEST(MatrixTests, MatrixMultiplication) {
 	const float epsilon = 1e-6f;
 
 	Eigen::Matrix2f A;
@@ -240,7 +241,7 @@ TEST(MatrixTest, MatrixMultiplication) {
 	EXPECT_TRUE((A * B).isApprox(Expected, epsilon));
 }
 
-TEST(MatrixTest, MatrixMultiplicationByTuple) {
+TEST(MatrixTests, MatrixMultiplicationByTuple) {
 	Tuple t1 = Tuple::vector(1.0f, 2.0f, 3.0f);
 	Eigen::Vector4f e_t1;
 	e_t1 << t1.x, t1.y, t1.z, t1.z;
@@ -254,7 +255,7 @@ TEST(MatrixTest, MatrixMultiplicationByTuple) {
 	auto mult = matrix * e_t1;
 }
 
-TEST(MatrixTest, MatrixIndenity) {
+TEST(MatrixTests, MatrixIndenity) {
 	const float epsilon = 1e-6f;
 
 	Eigen::Matrix4f matrix;
@@ -268,7 +269,7 @@ TEST(MatrixTest, MatrixIndenity) {
 	EXPECT_TRUE((identityMatrix * matrix).isApprox(matrix, epsilon));
 }
 
-TEST(MatrixTest, MatrixTranspose) {
+TEST(MatrixTests, MatrixTranspose) {
 	Eigen::Matrix4f matrix;
 	matrix << 	1, 8, 9, 4.1,
 				6, 2.4, 3, 2,
@@ -280,7 +281,7 @@ TEST(MatrixTest, MatrixTranspose) {
 	EXPECT_FLOAT_EQ(matrix(1, 2), 1.3);
 }
 
-TEST(MatrixTest, MatrixDeterminate) {
+TEST(MatrixTests, MatrixDeterminate) {
 	Eigen::Matrix4f matrix;
 	matrix << 	-2, -8, 3, 5,
 				-3, 1, 7, 3,
@@ -291,7 +292,7 @@ TEST(MatrixTest, MatrixDeterminate) {
 	EXPECT_EQ(det, -4071);
 }
 
-TEST(MatrixTest, MatrixInverse) {
+TEST(MatrixTests, MatrixInverse) {
 	Eigen::Matrix4f matrixA;
 	Eigen::Matrix4f matrixB;
 	matrixA << 	-2, -8, 3, 5,
@@ -313,7 +314,7 @@ TEST(MatrixTest, MatrixInverse) {
 	EXPECT_TRUE(is_approx);
 }
 
-TEST(MatrixTest, PointTransform) {
+TEST(MatrixTests, PointTransform) {
 	Affine3f transform(Translation3f(1,2,3));
 	Matrix4f translation_matrix = transform.matrix();
 	Vector4f e_t1;
@@ -323,7 +324,7 @@ TEST(MatrixTest, PointTransform) {
 	EXPECT_FLOAT_EQ(transformedFella(1), 4.6);
 }
 
-TEST(MatrixTest, VectorTransform) {
+TEST(MatrixTests, VectorTransform) {
 	Affine3f transform(Translation3f(1,2,3));
 	Matrix4f translation_matrix = transform.matrix();
 	Vector4f e_t1;
@@ -333,7 +334,7 @@ TEST(MatrixTest, VectorTransform) {
 	EXPECT_FLOAT_EQ(transformedFella(1), 2.6);
 }
 
-TEST(MatrixTest, VectorScale) {
+TEST(MatrixTests, VectorScale) {
 	Vector4f e_t1;
 	e_t1 << -4, 6, 8, 0;
 	e_t1 = create_scaling_matrix(-2, 3, 4) * e_t1;
@@ -341,7 +342,7 @@ TEST(MatrixTest, VectorScale) {
 	EXPECT_FLOAT_EQ(result, 18);
 }
 
-TEST(MatrixTest, PointRotate) {
+TEST(MatrixTests, PointRotate) {
 	Vector4f e_t1;
 	e_t1 << 0, 0, 1, 1;
 	Matrix4f half_quarter = create_Y_rotation_matrix(M_PI / 4);
@@ -351,7 +352,7 @@ TEST(MatrixTest, PointRotate) {
 	EXPECT_FLOAT_EQ(result, 0);
 }
 
-TEST(MatrixTest, PointShear) {
+TEST(MatrixTests, PointShear) {
 	Vector4f e_t1;
 	e_t1 << 2, 3, 4, 1;
 	Matrix4f shearer = create_shearing_matrix(0, 0, 0, 1, 0, 0);
@@ -360,10 +361,40 @@ TEST(MatrixTest, PointShear) {
 	float result = e_t1(1);
 	EXPECT_FLOAT_EQ(result, 7);
 }
+/* MATRICES */
+/* MATRICES */
+/* MATRICES */
 
-/* MATRICES */
-/* MATRICES */
-/* MATRICES */
+
+/* SPHERES */
+/* SPHERES */
+/* SPHERES */
+TEST(SphereTests, RayTest) {
+	Ray r = {
+		Point3D(5, 4, 6),
+		Vector3D(1, 1, 1)
+	};
+	EXPECT_FLOAT_EQ(r.origin.data[1], 4);
+}
+
+TEST(SphereTests, PositionTest) {
+	Ray r = {
+		Point3D(2, 3, 4),
+		Vector3D(1, 0, 0)
+	};
+	Point3D end = position(r, 2.5);
+	EXPECT_FLOAT_EQ(end.x(), 4.5);
+}
+
+TEST(SphereTests, SphereCreationTest) {
+	Sphere s;
+	EXPECT_EQ(s.radius, 1);
+}
+/* SPHERES */
+/* SPHERES */
+/* SPHERES */
+
+
 
 // Demonstrate some basic assertions.
 TEST(HelloTest, BasicAssertions) {
