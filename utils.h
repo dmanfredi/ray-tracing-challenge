@@ -1,49 +1,52 @@
-#ifndef MATRIX_OPERATIONS_H
-#define MATRIX_OPERATIONS_H
+#ifndef UTILS_H
+#define UTILS_H
 
-#include "Eigen/Dense"
+#include <iostream>
+#include <algorithm>
+#include <Eigen/Dense>
+#include <cmath>
+#include <vector>
 
+using namespace std;
 using namespace Eigen;
 
-// Point3D structure
+// Foward declarations
+class Sphere;
+class Intersection;
+struct Ray;
+struct Point3D;
+struct Vector3D;
+
 struct Point3D {
-	Vector4f data;
-	Point3D(float x, float y, float z) : data(x, y, z, 1.0f) {}
-
-	float x() const { return data[0]; }
-	float y() const { return data[1]; }
-	float z() const { return data[2]; }
+	Vector4f cords;
+	
+	Point3D(float x, float y, float z) : cords(x, y, z, 1.0f) {}
+	
+	// New constructor
+	explicit Point3D(const Vector4f& vec) : cords(vec) {
+		cords[3] = 1.0f;  // Ensure w-component is 1.0f for a point
+	}
+	
+	float x() const { return cords[0]; }
+	float y() const { return cords[1]; }
+	float z() const { return cords[2]; }
 };
 
-// Vector3D structure
 struct Vector3D {
-	Vector4f data;
-	Vector3D(float x, float y, float z) : data(x, y, z, 0.0f) {}
+	Vector4f cords;
+	
+	Vector3D(float x, float y, float z) : cords(x, y, z, 0.0f) {}
+	
+	// New constructor
+	explicit Vector3D(const Vector4f& vec) : cords(vec) {
+		cords[3] = 0.0f;  // Ensure w-component is 0.0f for a vector
+	}
+	
+	float x() const { return cords[0]; }
+	float y() const { return cords[1]; }
+	float z() const { return cords[2]; }
+};;
 
-	float x() const { return data[0]; }
-	float y() const { return data[1]; }
-	float z() const { return data[2]; }
-};
-
-// Function to create a scaling matrix
-Matrix4f create_scaling_matrix(float x, float y, float z);
-
-// Reflection matrix
-extern Matrix4f reflection_matrix;
-
-// Function to create a rotation matrix around the X-axis
-Matrix4f create_X_rotation_matrix(float r);
-
-// Function to create a rotation matrix around the Y-axis
-Matrix4f create_Y_rotation_matrix(float r);
-
-// Function to create a rotation matrix around the Z-axis
-Matrix4f create_Z_rotation_matrix(float r);
-
-// Function to create a shearing matrix that can shear by any axis realtive to any other axis
-Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx, float zy);
-
-// Ray
 struct Ray {
 	Point3D origin;
 	Vector3D direction;
@@ -51,6 +54,14 @@ struct Ray {
 	Ray(const Point3D& o, const Vector3D& d) : origin(o), direction(d) {}
 };
 
+// Function declarations
+Matrix4f create_scaling_matrix(float x, float y, float z);
+extern Matrix4f reflection_matrix;
+Matrix4f create_X_rotation_matrix(float r);
+Matrix4f create_Y_rotation_matrix(float r);
+Matrix4f create_Z_rotation_matrix(float r);
+Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx, float zy);
 Point3D position(Ray ray, float time);
+Ray transform_ray(Ray ray, const Matrix4f& matrix);
 
-#endif // MATRIX_OPERATIONS_H
+#endif // UTILS_H

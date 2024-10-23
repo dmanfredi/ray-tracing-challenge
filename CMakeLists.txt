@@ -31,37 +31,26 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 # add_executable (example example.cpp)
 # target_link_libraries (example Eigen3::Eigen)
 
-# Create a library from tuple.cc
-add_library(tuple_lib tuple.cc)
-# Create a library from canvas.cc
-add_library(canvas_lib canvas.cc)
-# Create a library from utils.cc
-add_library(utils_lib utils.cc)
-# Create a library from sphere.cc
-add_library(sphere_lib sphere.cc)
+add_library(ray_tracer_lib
+    tuple.cc
+    canvas.cc
+    utils.cc
+    sphere.cc
+    intersection.cc
+)
 
-# Create the main executable
+# Update the main executable linking
 add_executable(main_app main.cc)
-
-# Link the tuple library to the main executable
 target_link_libraries(main_app 
-    tuple_lib
-    canvas_lib
-    utils_lib
-    sphere_lib
+    ray_tracer_lib
     Eigen3::Eigen
 )
 
-# Create the test executable
+# Update the test executable linking
 add_executable(main_test main_test.cc)
-
-# Link the test executable with Google Test
 target_link_libraries(main_test 
     gtest_main 
-    tuple_lib
-    canvas_lib
-    utils_lib
-    sphere_lib
+    ray_tracer_lib
     Eigen3::Eigen
 )
 

@@ -3,6 +3,7 @@
 #include "tuple.h"
 #include "canvas.h"
 #include "utils.h"
+#include "intersection.h"
 #include <Eigen/Dense>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -13,44 +14,83 @@ using namespace Eigen;
 int
 main()
 {
+	Sphere s;
 
-	Canvas canvas = Canvas(900, 550);
-	Tuple color = Tuple::color(0.980, 0.649, 0.118);
+	int origin_z = -5;
 
-	// canvas.write_pixel(canvas_x, canvas_y, color, 10);
+	int wall_z = 10;
+	int wall_size = 7;
+	int canvas_pixels = 100;
+	float pixel_size = (float)wall_size / canvas_pixels; // 0.07
+	float half = (float)wall_size / 2.0f; // 3.5
 
-	Vector4f test = Vector4f(5.0, 6.0, 7.0, 9.0);
+	Point3D ray_origin_point = Point3D(0.0, 0.0, origin_z);
+	Canvas canvas = Canvas(canvas_pixels, canvas_pixels);
+	Tuple color = Tuple::color(1, 0.1, 0.1);
+	Tuple empty_color = Tuple::color(0.0, 0.0, 0.0);
 
-	test *= 2;
+	for (int y = 0; y < canvas_pixels - 1; y++) {
+		float world_y = half - pixel_size * y;
 
-	cout << test[1] << endl;
+		for (int x = 0; x < canvas_pixels - 1; x++) {
 
-	for (int i = 0; i < 12; i++) {
-		Vector4f pointy;
-		pointy << 0.0f, 200.0f, 0.0f, 1.0f;
-		int degrees = 360 - (i * 30);
-		float radians = degrees * (M_PI / 180);
+			float world_x = -half + pixel_size * x;
 
-		Matrix4f y_rotation = create_Z_rotation_matrix(i * (M_PI / 6));
-		pointy = y_rotation * pointy;
+			Point3D position = Point3D(world_x, world_y, wall_z);
 
-		int canvas_y = canvas.height - 1 -  static_cast<int>(pointy[1]);
-		int canvas_x = static_cast<int>(pointy[0]);
 
-		canvas_x += 250;
-		canvas_y -= 250;
-	
-		float result = pointy[1];
+			Vector4f direction = position.cords - ray_origin_point.cords;
+			Vector4f normalized_direction = direction.normalized();
 
-		canvas.write_pixel(canvas_x, canvas_y, color, 10);
+			Ray r = {
+				Point3D(ray_origin_point), 
+				Vector3D(normalized_direction)
+			};
+
+			vector<Intersection> intersections = intersect(s, r);
+
+			// cout << intersections[0].t << endl;
+
+			if (intersections.size() > 0) {
+				cout << "Intersection found at t=" << intersections[0].t << endl;
+
+				canvas.write_pixel(x, y, color, 1);
+			} else {
+				// canvas.write_pixel(canvas_x, canvas_y, empty_color, 1);
+			}
+		}
 	}
 
-	canvas.save_to_PPM("final.ppm");
 
-	cout << endl;
+	// for (float world_x = -half; world_x < (half + 0.0001f); world_x += pixel_size) { 
+	// 	// cout << world_x << endl;
+
+	// 	for (float world_y = -half; world_y < (half + 0.0001f); world_y += pixel_size) { 
+	// 		// counter++;
+	// 		Ray r = {
+	// 			Point3D(world_x, world_y, origin_z),
+	// 			Vector3D(0, 0, 1)
+	// 		};
+	// 		vector<Intersection> intersections = intersect(s, r);
+
+
+	// 		int canvas_x = round(world_x / pixel_size) + 500;
+	// 		int canvas_y = round(world_y / pixel_size) + 500;
+
+	// 		// cout << canvas_x << endl;
+	// 		// cout << canvas_y << endl;
+
+	// 		if (intersections.size() > 0) {
+	// 			canvas.write_pixel(canvas_x, canvas_y, color, 1);
+	// 		} else {
+	// 			// canvas.write_pixel(canvas_x, canvas_y, empty_color, 1);
+	// 		}
+	// 	}
+	// }
+
+	canvas.save_to_PPM("final.ppm");
 
 	return 0;
 }
 
 
-// tick

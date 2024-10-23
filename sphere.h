@@ -11,9 +11,10 @@ private:
 public: 
 	int radius;
 	Point3D origin;
+	Matrix4f transform;
 
 	// Constructor with default values
-	Sphere(int r = 1, Point3D o = Point3D(0, 0, 0));
+	Sphere(int r = 1, Point3D o = Point3D(0, 0, 0), Matrix4f t = Matrix4f::Identity());
 
 	// Destructor
 	~Sphere() = default;
