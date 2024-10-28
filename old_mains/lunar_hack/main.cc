@@ -18,7 +18,7 @@ using namespace Eigen;
 // s.material.shininess = 20;
 // s.material.specular = 0.4;
 
-Tuple CANVAS_COLOR = colors::black;
+Tuple CANVAS_COLOR = colors::sky;
 Tuple LIGHT_COLOR = colors::white;
 Tuple MATERIAL_COLOR = colors::sky;
 
@@ -46,7 +46,7 @@ main()
 
 	int wall_z = 10;
 	int wall_size = 7;
-	int canvas_pixels = 500;
+	int canvas_pixels = 1500;
 	float pixel_size = (float)wall_size / canvas_pixels; // 0.07
 	float half = (float)wall_size / 2.0f; // 3.5
 

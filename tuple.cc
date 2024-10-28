@@ -64,7 +64,7 @@ Tuple Tuple::operator-() const
 }
 
 bool Tuple::operator==(const Tuple& other) const {
-    const float EPSILON = 0.00001f;
+    const float EPSILON = 0.0001f;
     return (std::abs(x - other.x) < EPSILON &&
             std::abs(y - other.y) < EPSILON &&
             std::abs(z - other.z) < EPSILON &&
@@ -97,7 +97,15 @@ Tuple Tuple::cross(const Tuple& other) const {
 	);
 }
 
+Tuple Tuple::clamp_color(const Tuple& color) {
+    return Tuple::color(
+        std::clamp(color.x, 0.0f, 1.0f),
+        std::clamp(color.y, 0.0f, 1.0f),
+        std::clamp(color.z, 0.0f, 1.0f)
+    );
+}
+
 void Tuple::print() const {
-	std::cout << "(" << x << ", " << y << ", " << z << ", " << w << ")";
+	std::cout << "(" << x << ", " << y << ", " << z << ", " << w << ")" << std::endl;
 }
 

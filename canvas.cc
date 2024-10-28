@@ -6,20 +6,20 @@
 #include "canvas.h"
 
 // Canvas constructor definition
-Canvas::Canvas(int w, int h) : width(w), height(h), pixels(w * h) {
+Canvas::Canvas(int w, int h, Tuple c) : width(w), height(h), pixels(w * h), color(c) {
     for (auto& pixel : pixels) {
-        pixel = Tuple::color(0.019, 0.029, 0.140);
+        pixel = color;
     }
 }
 
-void Canvas::write_pixel(int x, int y, const Tuple& color, int size = 1) 
+void Canvas::write_pixel(int x, int y, const Tuple& pix_color, int size = 1) 
 {
     for (int dy = 0; dy < size; dy++) {
         for (int dx = 0; dx < size; dx++) {
             int px = x + dx;
             int py = y + dy;
             if (px >= 0 && px < width && py >= 0 && py < height) {
-                pixels[py * width + px] = color;
+                pixels[py * width + px] = pix_color;
             }
         }
     }

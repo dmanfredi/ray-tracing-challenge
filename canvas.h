@@ -13,9 +13,10 @@
 class Canvas {
 
 public:
-    Canvas(int w, int h);
+    Canvas(int w, int h, Tuple c = Tuple::color(0.0, 0.0, 0.0));
 
     int width, height;
+    Tuple color;
     std::vector<Tuple> pixels;
 
     void write_pixel(int x, int y, const Tuple& color, int size);

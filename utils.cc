@@ -67,3 +67,12 @@ Ray transform_ray(Ray ray, const Matrix4f& matrix) {
 
 	return translated_ray;
 }
+
+Vector3D reflect(Vector3D in, Vector3D normal) {
+	Vector4f in_dir = in.cords;
+	Vector4f normal_dir = normal.cords;
+
+	return Vector3D(
+		in_dir - normal_dir * 2 * (in_dir.dot(normal_dir)) // Math magic
+	);
+}

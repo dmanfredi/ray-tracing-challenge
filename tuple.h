@@ -27,6 +27,7 @@ public:
 
 	// Colors
 	Tuple hadamard_product(const Tuple& other) const;
+	Tuple clamp_color(const Tuple& color);
 	RGB to_RGB() const;
 	float red() const { return x; }
 	float green() const { return y; }
