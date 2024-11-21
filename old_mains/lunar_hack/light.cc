@@ -42,8 +42,8 @@ Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vec
 	// cout << "LightDotNormal " << light_dot_normal << endl;
 
 	if (light_dot_normal < 0) {
-		diffuse = colors::black;
-		specular = colors::sky;
+		diffuse = colors::Black;
+		specular = colors::SkyBlue;
 	} else {
 		// Compute the diffuse contribution
 		diffuse = effective_color * material.diffuse * light_dot_normal;
@@ -59,13 +59,13 @@ Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vec
 	//  cout << "ReflectDotEye " << reflect_dot_eye << endl;
 
 		if (reflect_dot_eye <= 0) {
-			specular = colors::sky;
+			specular = colors::SkyBlue;
 		} else {
 			// Compute the specular contribution
 			float factor = pow(reflect_dot_eye, material.shininess);
 		//  cout << "factor " << factor << endl;
 
-			specular = colors::sky;
+			specular = colors::SkyBlue;
 			// cout << "Specular ";
 			// specular.print();
 		}

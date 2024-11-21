@@ -7,6 +7,7 @@
 
 Light::Light(Point3D p, Tuple i) : posistion(p), intensity(i) {};
 
+// Returns light value.
 Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vector3D normalv) {
 	Tuple diffuse;
 	Tuple ambient;
@@ -42,8 +43,8 @@ Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vec
 	// cout << "LightDotNormal " << light_dot_normal << endl;
 
 	if (light_dot_normal < 0) {
-		diffuse = colors::black;
-		specular = colors::black;
+		diffuse = colors::Black;
+		specular = colors::Black;
 	} else {
 		// Compute the diffuse contribution
 		diffuse = effective_color * material.diffuse * light_dot_normal;
@@ -59,7 +60,7 @@ Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vec
 	//  cout << "ReflectDotEye " << reflect_dot_eye << endl;
 
 		if (reflect_dot_eye <= 0) {
-			specular = colors::black;
+			specular = colors::Black;
 		} else {
 			// Compute the specular contribution
 			float factor = pow(reflect_dot_eye, material.shininess);

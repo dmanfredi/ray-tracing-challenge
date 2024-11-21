@@ -44,3 +44,10 @@ void Canvas::save_to_PPM(const std::string& filename) {
 	std::string command = "start \"\" \"C:\\Program Files (x86)\\IrfanView\\i_view32.exe\" \"" + filename + "\"";
 	system(command.c_str());
 }
+
+Tuple Canvas::pixel_at(int x, int y) const {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        throw std::out_of_range("Pixel coordinates out of bounds!");
+    }
+    return pixels[y * width + x];
+}

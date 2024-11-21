@@ -61,6 +61,7 @@ Matrix4f create_X_rotation_matrix(float r);
 Matrix4f create_Y_rotation_matrix(float r);
 Matrix4f create_Z_rotation_matrix(float r);
 Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx, float zy);
+Matrix4f create_translation_matrix(float x, float y, float z);
 Point3D position(Ray ray, float time);
 Ray transform_ray(Ray ray, const Matrix4f& matrix);
 Vector3D reflect(Vector3D in, Vector3D normal);

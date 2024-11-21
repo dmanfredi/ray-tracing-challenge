@@ -47,6 +47,12 @@ Matrix4f create_shearing_matrix(float xy, float xz, float yx, float yz, float zx
 	return matrix;
 }
 
+Matrix4f create_translation_matrix(float x, float y, float z)
+{
+	Affine3f transform(Translation3f(x, y, z));
+	return transform.matrix();
+}
+
 Point3D position(Ray ray, float time) {
 	Vector4f result = ray.origin.cords + (ray.direction.cords * time);
 	return Point3D(result[0], result[1], result[2]);

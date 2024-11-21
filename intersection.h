@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 #include "utils.h"
+#include "world.h"
 #include "sphere.h"
 
 using namespace std;
@@ -25,6 +26,21 @@ public:
 	static int get_next_id();
 };
 
+class Computation {
+	public: 
+		float t;
+		Sphere object;
+		Point3D point;
+		Vector3D eyev;
+		Vector3D normalv;
+		bool inside;
+
+		Computation(float t_in, const Sphere& object_in, const Point3D& point_in,
+					const Vector3D& eyev_in, const Vector3D& normalv_in, bool inside);
+					
+		~Computation() = default;
+};
+
 // Finds any hits from a list of Intersections
 optional<Intersection> hit(const vector<Intersection>& intersections);
 
@@ -32,6 +48,16 @@ optional<Intersection> hit(const vector<Intersection>& intersections);
 vector<Intersection> intersect(const Sphere& sphere, const Ray& ray);
 
 // Flatens intersections into one list. Can take any number of these lists to do so.
-vector<Intersection> intersections(const initializer_list<vector<Intersection>>& intersection_lists);
+vector<Intersection> flatten_intersections(const vector<vector<Intersection>>& intersection_lists);
+
+// Calculates intersections for all objects in a world given a ray.
+vector<Intersection> intersect_world(World& w, Ray& r);
+
+Computation prepare_compuation(Intersection& intersection, Ray& ray);
+
+Tuple shade_hit(World& world, Computation& comps);
+
+Tuple color_at(World& world, Ray& ray);
+
 
 #endif // INTERSECTION_H

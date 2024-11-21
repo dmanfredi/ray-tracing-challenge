@@ -39,6 +39,8 @@ add_library(ray_tracer_lib
     intersection.cc
     light.cc
     material.cc
+    world.cc
+    console.cc
 )
 
 # Update the main executable linking

@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "material.h"
 
+// Sphere class
 class Sphere {
 private:
 	static int next_id;

@@ -1,5 +1,9 @@
 #include <iostream>
 #include <algorithm>
+
+
+// I need to rename my old canvas stuff to image, I dont want to confuse it with my other world related canvas things
+
 #include "tuple.h"
 #include "canvas.h"
 #include "utils.h"
@@ -18,9 +22,9 @@ using namespace Eigen;
 // s.material.shininess = 20;
 // s.material.specular = 0.4;
 
-Tuple CANVAS_COLOR = colors::sky;
+Tuple CANVAS_COLOR = colors::Black;
 Tuple LIGHT_COLOR = colors::White;
-Tuple MATERIAL_COLOR = colors::sky;
+Tuple MATERIAL_COLOR = colors::Maroon;
 
 // Ambient is the scatteryness of light.
 // You get sharper shadows when its lower, kind of like how on the surface of the moon you get really sharp shadows since theres no atmosphere to refract light
@@ -46,7 +50,7 @@ main()
 
 	int wall_z = 10;
 	int wall_size = 7;
-	int canvas_pixels = 1500;
+	int canvas_pixels = 500;
 	float pixel_size = (float)wall_size / canvas_pixels; // 0.07
 	float half = (float)wall_size / 2.0f; // 3.5
 

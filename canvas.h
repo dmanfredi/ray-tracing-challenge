@@ -21,6 +21,7 @@ public:
 
     void write_pixel(int x, int y, const Tuple& color, int size);
     void save_to_PPM(const std::string& filename);
+    Tuple pixel_at(int x, int y) const;
 
 };
 

@@ -10,15 +10,38 @@
 #include "canvas.h"
 #include "utils.h"
 #include "sphere.h"
+#include "world.h"
 #include "intersection.h"
 #include "light.h"
 #include "material.h"
+#include "console.h"
 
 
 using namespace std;
 using namespace Eigen;
 
 const float SQRT2_OVER_2 = sqrt(2.0f) / 2.0f;
+const float PI_OVER_2 = M_PI / 2.0f;
+
+World create_default_world() {
+	World default_world;
+	
+	default_world.light = Light(Point3D(-10, 10, -10), Tuple::color(1, 1, 1));
+	
+	Sphere s1;
+	Material m1;
+	m1.color = Tuple::color(0.8, 1.0, 0.6);
+	m1.diffuse = 0.7;
+	m1.specular = 0.2;
+	s1.material = m1;
+	default_world.objects.push_back(s1);
+	
+	Sphere s2;
+	s2.transform = create_scaling_matrix(0.5, 0.5, 0.5);
+	default_world.objects.push_back(s2);
+	
+	return default_world;
+}
 
 TEST(TupleTests, PointCreation) {
 	Tuple p1 = Tuple::point(1.5f, 5.6f, 2.7f);
@@ -222,7 +245,7 @@ TEST(MatrixTests, MatrixEquality) {
 		1, 4.1f;
 
 	float epsilon = 1e-5f;
-    bool is_approx = A.isApprox(B, epsilon);
+	bool is_approx = A.isApprox(B, epsilon);
 
 	bool other_approx = A.isApprox(C, epsilon);
 
@@ -432,12 +455,12 @@ TEST(SphereTests, SphereIntersectionMiss) {
 }
 
 TEST(SphereTests, SphereHasIdentityTransformation) {
-    const float epsilon = 1e-6f;
-    Sphere s;
+	const float epsilon = 1e-6f;
+	Sphere s;
 
-    Matrix4f identityMatrix = Matrix4f::Identity();
+	Matrix4f identityMatrix = Matrix4f::Identity();
 
-    EXPECT_TRUE(identityMatrix.isApprox(s.transform, epsilon));
+	EXPECT_TRUE(identityMatrix.isApprox(s.transform, epsilon));
 }
 
 
@@ -639,7 +662,7 @@ TEST(IntersectionAndHitTests, HitTest) {
 	vector<Intersection> i3 = { Intersection(-3, s) };
 	vector<Intersection> i4 = { Intersection(2, s) };
 
-	vector<Intersection> all_intersections = intersections({i1, i2, i3, i4});
+	vector<Intersection> all_intersections = flatten_intersections({i1, i2, i3, i4});
 
 	// Test case 1: Hit should be the closest positive intersection
 	auto result = hit(all_intersections);
@@ -699,6 +722,127 @@ TEST(IntersectionAndHitTests, IntersectTranslatedSphere) {
 	EXPECT_EQ(intersects.size(), 0);
 }
 
+TEST(IntersectionAndHitTests, IntersectWorld) {
+	World w = create_default_world();
+	Ray r = Ray{
+		Point3D(0, 0, -5),
+		Vector3D(0, 0, 1)
+	};
+
+	vector<Intersection> intersections = intersect_world(w, r);
+
+
+	EXPECT_EQ(intersections.size(), 4);
+
+	EXPECT_FLOAT_EQ(intersections[0].t, 4);
+	EXPECT_FLOAT_EQ(intersections[1].t, 4.5);
+	EXPECT_FLOAT_EQ(intersections[2].t, 5.5);
+	EXPECT_FLOAT_EQ(intersections[3].t, 6);
+}
+
+TEST(IntersectionAndHitTests, Precomputations) {
+	Ray r = Ray{
+		Point3D(0, 0, -5),
+		Vector3D(0, 0, 1)
+	};
+	Sphere shape = Sphere();
+	Intersection i = Intersection(4, shape);
+
+	Computation comps = prepare_compuation(i, r);
+
+
+	EXPECT_FLOAT_EQ(comps.t, i.t);
+	EXPECT_TRUE(shape.origin.cords.isApprox(comps.object.origin.cords));
+	EXPECT_TRUE(comps.point.cords.isApprox(Point3D(0, 0, -1).cords));
+	EXPECT_TRUE(comps.eyev.cords.isApprox(Vector3D(0, 0, -1).cords));
+	EXPECT_TRUE(comps.normalv.cords.isApprox(Vector3D(0, 0, -1).cords));
+	EXPECT_FALSE(comps.inside);
+}
+
+TEST(IntersectionAndHitTests, PrecomputationsInside) {
+	Ray r = Ray{
+		Point3D(0, 0, 0),
+		Vector3D(0, 0, 1)
+	};
+	Sphere shape = Sphere();
+	Intersection i = Intersection(4, shape);
+
+	Computation comps = prepare_compuation(i, r);
+
+	EXPECT_TRUE(comps.normalv.cords.isApprox(Vector3D(0, 0, -1).cords));
+	EXPECT_TRUE(comps.inside);
+}
+
+TEST(IntersectionAndHitTests, ShadeHitOutside) {
+	World w = create_default_world();
+	Ray r = Ray{
+		Point3D(0, 0, -5),
+		Vector3D(0, 0, 1)
+	};
+
+
+	cout << "First sphere material color: ";
+	w.objects[0].material.color.print();
+
+
+	Intersection i = Intersection(4, w.objects[0]);
+	Computation comps = prepare_compuation(i, r);
+	Tuple color = shade_hit(w, comps);
+
+	color.print();
+	Tuple::color(0.38066, 0.47583, 0.90498).print();
+
+	EXPECT_TRUE(color == Tuple::color(0.38066, 0.47583, 0.2855));
+}
+
+TEST(IntersectionAndHitTests, ShadeHitInside) {
+	World w = create_default_world();
+	w.light = Light(Point3D(0, 0.25, 0), Tuple::color(1, 1, 1));
+	Ray r = Ray{
+		Point3D(0, 0, 0),
+		Vector3D(0, 0, 1)
+	};
+	Intersection i = Intersection(0.5, w.objects[1]);
+	Computation comps = prepare_compuation(i, r);
+	Tuple color = shade_hit(w, comps);
+
+	// color.print();
+
+	EXPECT_TRUE(color == Tuple::color(0.90498, 0.90498, 0.90498));
+}
+
+TEST(IntersectionAndHitTests, ColorAtMiss) {
+	World w = create_default_world();
+	Ray r = Ray{
+		Point3D(0, 0, -5),
+		Vector3D(0, 1, 0)
+	};
+	Tuple color = color_at(w, r);
+	EXPECT_TRUE(color == Tuple::color(0.0, 0.0, 0.0));
+}
+
+TEST(IntersectionAndHitTests, ColorAtHit) {
+	World w = create_default_world();
+	Ray r = Ray{
+		Point3D(0, 0, -5),
+		Vector3D(0, 0, 1)
+	};
+	Tuple color = color_at(w, r);
+	EXPECT_TRUE(color == Tuple::color(0.38066, 0.47583, 0.2855));
+}
+
+// The color with an intersection behind the ray pg 97
+TEST(IntersectionAndHitTests, ColorAtIntersectionBehindRay) {
+	World w = create_default_world();
+	w.objects[0].material.ambient = 1;
+	w.objects[1].material.ambient = 1;
+	Ray r = Ray{
+		Point3D(0, 0, 0.75),
+		Vector3D(0, 0, -1)
+	};
+	Tuple color = color_at(w, r);
+	EXPECT_TRUE(color == w.objects[1].material.color);
+}
 /* INTERSECTIONS & HITS */
 /* INTERSECTIONS & HITS */
 /* INTERSECTIONS & HITS */
@@ -718,13 +862,13 @@ TEST(RayTests, TranslateRay) {
 
 	Ray translated_ray = transform_ray(r, translation_matrix);
 
-    EXPECT_FLOAT_EQ(translated_ray.origin.x(), 4.0f);
-    EXPECT_FLOAT_EQ(translated_ray.origin.y(), 6.0f);
-    EXPECT_FLOAT_EQ(translated_ray.origin.z(), 8.0f);
+	EXPECT_FLOAT_EQ(translated_ray.origin.x(), 4.0f);
+	EXPECT_FLOAT_EQ(translated_ray.origin.y(), 6.0f);
+	EXPECT_FLOAT_EQ(translated_ray.origin.z(), 8.0f);
 
-    EXPECT_FLOAT_EQ(translated_ray.direction.x(), 0.0f);
-    EXPECT_FLOAT_EQ(translated_ray.direction.y(), 1.0f);
-    EXPECT_FLOAT_EQ(translated_ray.direction.z(), 0.0f);
+	EXPECT_FLOAT_EQ(translated_ray.direction.x(), 0.0f);
+	EXPECT_FLOAT_EQ(translated_ray.direction.y(), 1.0f);
+	EXPECT_FLOAT_EQ(translated_ray.direction.z(), 0.0f);
 }
 
 TEST(RayTests, ScaleRay) {
@@ -738,17 +882,139 @@ TEST(RayTests, ScaleRay) {
 	Ray scaled_ray = transform_ray(r, scaling_matrix);
 
 	EXPECT_FLOAT_EQ(scaled_ray.origin.x(), 2.0f);
-    EXPECT_FLOAT_EQ(scaled_ray.origin.y(), 6.0f);
-    EXPECT_FLOAT_EQ(scaled_ray.origin.z(), 12.0f);
+	EXPECT_FLOAT_EQ(scaled_ray.origin.y(), 6.0f);
+	EXPECT_FLOAT_EQ(scaled_ray.origin.z(), 12.0f);
 
-    EXPECT_FLOAT_EQ(scaled_ray.direction.x(), 0.0f);
-    EXPECT_FLOAT_EQ(scaled_ray.direction.y(), 3.0f);
-    EXPECT_FLOAT_EQ(scaled_ray.direction.z(), 0.0f);
+	EXPECT_FLOAT_EQ(scaled_ray.direction.x(), 0.0f);
+	EXPECT_FLOAT_EQ(scaled_ray.direction.y(), 3.0f);
+	EXPECT_FLOAT_EQ(scaled_ray.direction.z(), 0.0f);
+}
+/* RAYS */
+/* RAYS */
+/* RAYS */
+
+/* WORLD */
+/* WORLD */
+/* WORLD */
+TEST(WorldTests, BasicWorld) {
+	World w = create_default_world();
+	ASSERT_EQ(w.objects.size(), 2);
 }
 
-/* RAYS */
-/* RAYS */
-/* RAYS */
+TEST(WorldTests, DefaultView) {
+	Point3D from = Point3D(0, 0, 0);
+	Point3D to = Point3D(0, 0, -1);
+	Vector3D up = Vector3D(0, 1, 0);
+
+	Matrix4f t = view_transform(from, to, up);
+
+	EXPECT_TRUE(t.isApprox(Matrix4f::Identity()));
+}
+
+TEST(WorldTests, PostiveZView) {
+	Point3D from = Point3D(0, 0, 0);
+	Point3D to = Point3D(0, 0, 1);
+	Vector3D up = Vector3D(0, 1, 0);
+
+	Matrix4f t = view_transform(from, to, up);
+	Matrix4f scale = create_scaling_matrix(-1.0, 1.0, -1.0);
+
+	EXPECT_TRUE(t.isApprox(scale));
+}
+
+TEST(WorldTests, ViewFrom) {
+	Point3D from = Point3D(0, 0, 8);
+	Point3D to = Point3D(0, 0, 0);
+	Vector3D up = Vector3D(0, 1, 0);
+
+	Matrix4f t = view_transform(from, to, up);
+
+	Affine3f transform(Translation3f(0, 0, -8));
+	Matrix4f translation_matrix = transform.matrix();
+
+	EXPECT_TRUE(t.isApprox(translation_matrix));
+}
+
+TEST(WorldTests, ArbitraryView) { // pg 99
+	Point3D from = Point3D(1, 3, 2);
+	Point3D to = Point3D(4, -2, 8);
+	Vector3D up = Vector3D(1, 1, 0);
+
+	Matrix4f t = view_transform(from, to, up);
+
+	// mildly concerning
+	EXPECT_NEAR(t(0, 1), 0.50709, 1e-2);
+	EXPECT_NEAR(t(1, 2), 0.12122, 1e-2);
+	EXPECT_NEAR(t(2, 2), -0.71714, 1e-2);
+	EXPECT_FLOAT_EQ(t(3, 3), 1.0);
+}
+
+TEST(WorldTests, CameraCreation) {
+	Camera camera = Camera(160, 120, PI_OVER_2);
+
+	EXPECT_EQ(camera.hsize, 160);
+	EXPECT_EQ(camera.vsize, 120);
+	EXPECT_FLOAT_EQ(camera.field_of_view, PI_OVER_2);
+	EXPECT_TRUE(camera.transform.isApprox(Eigen::Matrix4f::Identity()));
+}
+
+TEST(WorldTests, CameraPixelSize) {
+	// horizontal canvas
+	Camera camera = Camera(200, 125, PI_OVER_2);
+	EXPECT_FLOAT_EQ(camera.pixel_size, 0.01);
+
+	// veritcal canvas
+	Camera camera2 = Camera(125, 200, PI_OVER_2);
+	EXPECT_FLOAT_EQ(camera2.pixel_size, 0.01);
+}
+
+TEST(WorldTests, RayThroughCanvas) {
+	Camera camera = Camera(201, 101, PI_OVER_2);
+	Ray r = ray_for_pixel(camera, 100, 50);
+
+	EXPECT_TRUE(r.origin.cords.isApprox(Point3D(0, 0, 0).cords));
+	EXPECT_TRUE(r.direction.cords.isApprox(Vector3D(0, 0, -1).cords));
+}
+
+TEST(WorldTests, RayThroughCanvasCorner) {
+	Camera camera = Camera(201, 101, PI_OVER_2);
+	Ray r = ray_for_pixel(camera, 0, 0);
+
+	EXPECT_TRUE(r.origin.cords.isApprox(Point3D(0, 0, 0).cords));
+	EXPECT_TRUE(r.direction.cords.isApprox(Vector3D(0.66519, .33259, -0.6685).cords, 1e-4f));
+}
+
+TEST(WorldTests, RayThroughTransformedCanvas) {
+	Camera camera = Camera(201, 101, PI_OVER_2);
+	camera.transform = create_Y_rotation_matrix(M_PI / 4) * create_translation_matrix(0, -2, 5);
+	Ray r = ray_for_pixel(camera, 100, 50);
+	
+	EXPECT_TRUE(r.origin.cords.isApprox(Point3D(0, 2, -5).cords));
+	EXPECT_TRUE(r.direction.cords.isApprox(Vector3D(SQRT2_OVER_2, 0, -SQRT2_OVER_2).cords, 1e-4f));
+}
+
+TEST(WorldTests, EndToEndWorld) {
+	World w = create_default_world();
+
+	Camera camera = Camera(11, 11, PI_OVER_2);
+	Point3D from = Point3D(0, 0, -5);
+	Point3D to = Point3D(0, 0, 0);
+	Vector3D up = Vector3D(0, 1, 0);
+	camera.transform = view_transform(from, to, up);
+	Canvas image = render(camera, w); 
+
+
+	Tuple who = image.pixel_at(5, 5);
+
+	EXPECT_TRUE(who == Tuple::color(0.3806, 0.4758, 0.2855));
+	// camera.transform = create_Y_rotation_matrix(M_PI / 4) * create_translation_matrix(0, -2, 5);
+	// Ray r = ray_for_pixel(camera, 100, 50);
+	
+}
+
+/* WORLD */
+/* WORLD */
+/* WORLD */
 
 
 // Demonstrate some basic assertions.
