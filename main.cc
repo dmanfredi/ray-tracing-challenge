@@ -89,10 +89,6 @@ main()
 
 	canvas.save_to_PPM("final.ppm");
 
-	// Canvas canvas = Canvas(canvas_pixels, canvas_pixels, CANVAS_COLOR);
-
-	// canvas.save_to_PPM("final.ppm");
-
 	return 0;
 }
 

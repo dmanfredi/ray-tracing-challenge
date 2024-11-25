@@ -48,11 +48,13 @@ vector<Intersection> intersect(const Sphere& sphere, const Ray& ray) {
 
 	Ray transformed_ray = transform_ray(ray, sphere.transform.inverse());
 
+    // Using double precision for quadratic equation to avoid shadow acne (and probably other issues, I dont know)
+    // caused by floating-point precision errors in intersection calculations
 	Vector4f sphere_to_ray = transformed_ray.origin.cords - sphere.origin.cords;
-	float a = transformed_ray.direction.cords.dot(transformed_ray.direction.cords);
-	float b = 2 * (transformed_ray.direction.cords.dot(sphere_to_ray));
-	float c = sphere_to_ray.dot(sphere_to_ray) - 1;
-	float discriminant = b * b - 4 * a * c; 
+	double a = transformed_ray.direction.cords.cast<double>().dot(transformed_ray.direction.cords.cast<double>());
+	double b = 2 * transformed_ray.direction.cords.cast<double>().dot(sphere_to_ray.cast<double>());
+	double c = sphere_to_ray.cast<double>().dot(sphere_to_ray.cast<double>()) - 1;
+	double discriminant = b * b - 4 * a * c;
 
 	if (discriminant < 0) {
 		return {};
