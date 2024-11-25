@@ -7,7 +7,7 @@
 
 Light::Light(Point3D p, Tuple i) : posistion(p), intensity(i) {};
 
-Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vector3D normalv) {
+Tuple lighting(Material material, Light light, Point3D point, Vector3D eyev, Vector3D normalv, bool inShadow) {
 	Tuple diffuse;
 	Tuple ambient;
 	Tuple specular;

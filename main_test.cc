@@ -15,6 +15,7 @@
 #include "light.h"
 #include "material.h"
 #include "console.h"
+#include "colors.h"
 
 
 using namespace std;
@@ -582,9 +583,24 @@ TEST(LightingTests, DirectLight) {
 	Vector3D normalv = Vector3D(0, 0, -1);
 	Light light = Light(Point3D(0, 0, -10), Tuple::color(1, 1, 1));
 
-	Tuple result = lighting(m, light, position, eyev, normalv);
+	Tuple result = lighting(m, light, position, eyev, normalv, false);
 
 	EXPECT_TRUE(result == Tuple::color(1.9, 1.9, 1.9));
+}
+
+TEST(LightingTests, DirectLightShadow) {
+	// Lighting with the eye between the light and the surface
+	Material m = Material();
+	Point3D position = Point3D(0, 0, 0);
+
+	Vector3D eyev = Vector3D(0, 0, -1);
+	Vector3D normalv = Vector3D(0, 0, -1);
+	Light light = Light(Point3D(0, 0, -10), Tuple::color(1, 1, 1));
+	bool inShadow = true;
+
+	Tuple result = lighting(m, light, position, eyev, normalv, inShadow);
+
+	EXPECT_TRUE(result == Tuple::color(0.1, 0.1, 0.1));
 }
 
 TEST(LightingTests, OffsetEyeFromLight) {
@@ -596,7 +612,7 @@ TEST(LightingTests, OffsetEyeFromLight) {
 	Vector3D normalv = Vector3D(0, 0, -1);
 	Light light = Light(Point3D(0, 0, -10), Tuple::color(1, 1, 1));
 
-	Tuple result = lighting(m, light, position, eyev, normalv);
+	Tuple result = lighting(m, light, position, eyev, normalv, false);
 	EXPECT_TRUE(result == Tuple::color(1.0, 1.0, 1.0));
 }
 
@@ -609,7 +625,7 @@ TEST(LightingTests, HeadOnLightOffset) {
 	Vector3D normalv = Vector3D(0, 0, -1);
 	Light light = Light(Point3D(0, 10, -10), Tuple::color(1, 1, 1));
 
-	Tuple result = lighting(m, light, position, eyev, normalv);
+	Tuple result = lighting(m, light, position, eyev, normalv, false);
 	EXPECT_TRUE(result == Tuple::color(0.7364, 0.7364, 0.7364));
 }
 
@@ -622,7 +638,7 @@ TEST(LightingTests, EyeInPathOfReflectionVector) {
 	Vector3D normalv = Vector3D(0, 0, -1);
 	Light light = Light(Point3D(0, 10, -10), Tuple::color(1, 1, 1));
 
-	Tuple result = lighting(m, light, position, eyev, normalv);
+	Tuple result = lighting(m, light, position, eyev, normalv, false);
 	EXPECT_TRUE(result == Tuple::color(1.6364, 1.6364, 1.6364));
 }
 
@@ -635,8 +651,72 @@ TEST(LightingTests, LightObscured) {
 	Vector3D normalv = Vector3D(0, 0, -1);
 	Light light = Light(Point3D(0, 0, 10), Tuple::color(1, 1, 1));
 
-	Tuple result = lighting(m, light, position, eyev, normalv);
+	Tuple result = lighting(m, light, position, eyev, normalv, false);
 	EXPECT_TRUE(result == Tuple::color(0.1, 0.1, 0.1));
+}
+
+TEST(ShadowTests, NoShadow) {
+	// the light and point are in direct view of each other
+	World w = create_default_world();
+	Point3D p = Point3D(0, 10, 0);
+
+	EXPECT_FALSE(is_shadowed(w, p));
+}
+
+TEST(ShadowTests, ThereIsShadow) {
+	// there is an object between the light and the point
+	World w = create_default_world();
+	Point3D p = Point3D(10, -10, 10);
+
+	EXPECT_TRUE(is_shadowed(w, p));
+}
+
+TEST(ShadowTests, NoShadowTwo) {
+	// Point -> light -> object. No shadow
+	World w = create_default_world();
+	Point3D p = Point3D(-20, 20, -20);
+
+	EXPECT_FALSE(is_shadowed(w, p));
+}
+
+TEST(ShadowTests, NoShadowThree) {
+	// Light -> point -> object. No shadow
+	World w = create_default_world();
+	Point3D p = Point3D(-2, 2, -2);
+
+	EXPECT_FALSE(is_shadowed(w, p));
+}
+
+TEST(ShadowTests, FullShadowTest) {
+	World w = create_default_world();
+	w.light = Light(Point3D(0, 0, -10), colors::White);
+	Sphere s1 = Sphere();
+	w.objects.push_back(s1);
+
+	Sphere s2 = Sphere();
+	s2.transform = create_translation_matrix(0, 0, 10);
+	w.objects.push_back(s2);
+
+	Ray r = Ray(Point3D(0, 0, 5), Vector3D(0, 0, 1));
+	Intersection i = Intersection(4, s2);
+
+	Computation comps = prepare_compuation(i, r);
+	Tuple color = shade_hit(w, comps);
+
+	EXPECT_TRUE(color == Tuple::color(0.1, 0.1, 0.1));
+}
+
+TEST(ShadowTests, OverPointTest) {
+	float EPSILON = 1e-5f;
+	Ray r = Ray(Point3D(0, 0, -5), Vector3D(0, 0, 1));
+	Sphere shape = Sphere();
+	shape.transform = create_translation_matrix(0, 0, 1);
+
+	Intersection i = Intersection(5, shape);
+	Computation comps = prepare_compuation(i, r);
+
+	EXPECT_TRUE(comps.over_point.z() < -EPSILON / 2);
+	EXPECT_TRUE(comps.point.z() > comps.over_point.z());
 }
 
 /* LIGHTING */
@@ -943,9 +1023,9 @@ TEST(WorldTests, ArbitraryView) { // pg 99
 	Matrix4f t = view_transform(from, to, up);
 
 	// mildly concerning
-	EXPECT_NEAR(t(0, 1), 0.50709, 1e-2);
-	EXPECT_NEAR(t(1, 2), 0.12122, 1e-2);
-	EXPECT_NEAR(t(2, 2), -0.71714, 1e-2);
+	EXPECT_NEAR(t(0, 1), 0.50709, 1e-5);
+	EXPECT_NEAR(t(1, 2), 0.12122, 1e-5);
+	EXPECT_NEAR(t(2, 2), -0.71714, 1e-5);
 	EXPECT_FLOAT_EQ(t(3, 3), 1.0);
 }
 

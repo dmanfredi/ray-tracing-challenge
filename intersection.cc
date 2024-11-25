@@ -18,11 +18,12 @@ int Intersection::get_next_id() {
 	return next_id;
 }
 
-Computation::Computation(float t_in, const Sphere& object_in, const Point3D& point_in,
+Computation::Computation(float t_in, const Sphere& object_in, const Point3D& point_in, const Point3D& over_point_in,
 						const Vector3D& eyev_in, const Vector3D& normalv_in, const bool inside)
 	: t(t_in)
 	, object(object_in)
 	, point(point_in)
+	, over_point(over_point_in)
 	, eyev(eyev_in)
 	, normalv(normalv_in)
 	, inside(inside)
@@ -100,6 +101,7 @@ vector<Intersection> intersect_world(World& w, Ray& r) {
 
 // Precompute and store values for later
 Computation prepare_compuation(Intersection& intersection, Ray& ray) {
+	float EPSILON = 1e-5f;
 	Point3D pos = position(ray, intersection.t);
 	Vector3D normal = normal_at(intersection.object, pos);
 	Vector3D eyev = Vector3D(-1 * ray.direction.cords);
@@ -113,11 +115,15 @@ Computation prepare_compuation(Intersection& intersection, Ray& ray) {
 		isInside = false;
 	}
 
+	// the over point is just a tiny bit ahead of the point down the direction of the normal
+	Point3D over_point = Point3D(pos.cords + (normal.cords * EPSILON));
+
 	//Computation = Computation();
 	Computation comps = Computation(
 		intersection.t,
 		intersection.object,
 		pos,
+		over_point,
 		eyev,
 		normal,
 		isInside
@@ -127,13 +133,34 @@ Computation prepare_compuation(Intersection& intersection, Ray& ray) {
 }
 
 Tuple shade_hit(World& world, Computation& comps) {
+
+	bool shadowed = is_shadowed(world, comps.over_point);
+
 	return lighting(
 		comps.object.material,
 		world.light,
 		comps.point,
 		comps.eyev,
-		comps.normalv
+		comps.normalv,
+		shadowed
 	);
+}
+
+bool is_shadowed(World& world, Point3D& point) {
+	Vector4f point_to_light = world.light.posistion.cords - point.cords;
+	double distance = point_to_light.norm(); // this is the magnitude.
+	Vector4f direction = point_to_light.normalized();
+
+	Ray ray = Ray(point, Vector3D(direction));
+
+	vector<Intersection> world_intersections = intersect_world(world, ray);
+	optional<Intersection> world_hit = hit(world_intersections); // Could be a hit, could be nothing.
+
+	if (world_hit && world_hit->t < distance) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // Get the FINAL color that a ray gives us given the world it travels through.

@@ -20,6 +20,6 @@ class Light {
 
 };
 
-Tuple lighting(Material material, Light light, Point3D position, Vector3D eyev, Vector3D normalv);
+Tuple lighting(Material material, Light light, Point3D position, Vector3D eyev, Vector3D normalv, bool inShadow);
 
 #endif // LIGHT_H

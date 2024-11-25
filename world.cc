@@ -34,14 +34,14 @@ void Camera::compute_canvas_info() {
 Matrix4f view_transform(Point3D from, Point3D to, Vector3D up) { // pg 99-100
 	Vector3f forward = (to.cords.head<3>() - from.cords.head<3>()).normalized();
 	Vector3f up_normalized = up.cords.head<3>().normalized();
-	Vector3f left = forward.cross(up_normalized).normalized();
-	Vector3f true_up = left.cross(forward);
+	Vector3f left = forward.cross(up_normalized); 
+	Vector3f true_up = left.cross(forward);       
 
 	Matrix4f orientation;
-	orientation  << left.x(),       left.y(),       left.z(),       0,
-					true_up.x(),    true_up.y(),    true_up.z(),    0,
-					-forward.x(),   -forward.y(),   -forward.z(),   0,
-					0,              0,              0,              1;
+	orientation  << left.x(),       left.y(),       left.z(),       0.0,
+					true_up.x(),    true_up.y(),    true_up.z(),    0.0,
+					-forward.x(),   -forward.y(),   -forward.z(),   0.0,
+					0.0,            0.0,            0.0,            1.0;
 
 	// Scoot the scene away
 	Affine3f transform(Translation3f(-from.x(), -from.y(), -from.z()));

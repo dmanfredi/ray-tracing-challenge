@@ -31,11 +31,12 @@ class Computation {
 		float t;
 		Sphere object;
 		Point3D point;
+		Point3D over_point;
 		Vector3D eyev;
 		Vector3D normalv;
 		bool inside;
 
-		Computation(float t_in, const Sphere& object_in, const Point3D& point_in,
+		Computation(float t_in, const Sphere& object_in, const Point3D& point_in, const Point3D& over_point_in,
 					const Vector3D& eyev_in, const Vector3D& normalv_in, bool inside);
 					
 		~Computation() = default;
@@ -56,6 +57,8 @@ vector<Intersection> intersect_world(World& w, Ray& r);
 Computation prepare_compuation(Intersection& intersection, Ray& ray);
 
 Tuple shade_hit(World& world, Computation& comps);
+
+bool is_shadowed(World& world, Point3D& point);
 
 Tuple color_at(World& world, Ray& ray);
 
