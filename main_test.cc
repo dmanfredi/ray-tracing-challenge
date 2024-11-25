@@ -1022,7 +1022,6 @@ TEST(WorldTests, ArbitraryView) { // pg 99
 
 	Matrix4f t = view_transform(from, to, up);
 
-	// mildly concerning
 	EXPECT_NEAR(t(0, 1), 0.50709, 1e-5);
 	EXPECT_NEAR(t(1, 2), 0.12122, 1e-5);
 	EXPECT_NEAR(t(2, 2), -0.71714, 1e-5);
