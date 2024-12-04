@@ -6,11 +6,11 @@
 int Sphere::next_id = 0;
 
 Sphere::Sphere(int r, Point3D o, Matrix4f t, Material m) 
-    : id(next_id++),
-      radius(r), 
-      origin(o),
-      transform(t),
-	  material(m)
+	: id(next_id++),
+	radius(r), 
+	origin(o),
+	transform(t),
+	material(m)
 {}
 
 int Sphere::get_id() const {

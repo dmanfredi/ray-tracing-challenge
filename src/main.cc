@@ -82,7 +82,7 @@ main()
 	left.material.specular = 0.3;
 	world.objects.push_back(left);
 
-	Camera camera = Camera(400, 200, M_PI / 5); // 1.57 = 90deg
+	Camera camera = Camera(800, 400, M_PI / 5); // 1.57 = 90deg
 	camera.transform = view_transform(Point3D(0, 1.5, -10), Point3D(0, 1, 0), Vector3D(0, 1, 0));
 
 	Canvas canvas = render(camera, world);
