@@ -50,6 +50,7 @@ add_library(ray_tracer_lib
     src/material.cc
     src/world.cc
     src/console.cc
+    tests/test_utils.cc
 )
 
 # Main application
@@ -61,8 +62,13 @@ target_link_libraries(main_app
 
 # Tests configuration
 set(TEST_SOURCES
-    tests/all_tests.cc
+    tests/misc_tests.cc
     tests/tuple_tests.cc
+    tests/matrix_tests.cc
+    tests/lighting_tests.cc
+    tests/shape_tests.cc
+    tests/intersection_tests.cc
+    tests/world_tests.cc
 )
 
 add_executable(main_test ${TEST_SOURCES})
